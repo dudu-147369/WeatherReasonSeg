@@ -10,7 +10,6 @@
 
 <sup>1</sup>Beijing Jiaotong University &nbsp;&nbsp; <sup>2</sup>National University of Singapore &nbsp;&nbsp; <sup>3</sup>Monash University
 
-<sup>*</sup>Equal contribution &nbsp;&nbsp; <sup>†</sup>Project leader &nbsp;&nbsp; <sup>‡</sup>Corresponding author
 
 [![Paper](https://img.shields.io/badge/arXiv-2603.17680-b31b1b.svg?logo=arxiv)](https://arxiv.org/abs/2603.17680)
 [![Dataset](https://img.shields.io/badge/%F0%9F%A4%97%20Dataset-WeatherReasonSeg-FFD21E)](https://huggingface.co/datasets/wanwan1111/WeatherReasonSeg)
@@ -20,7 +19,7 @@
 </div>
 
 <p align="center">
-  <img src="assets/teaser.png" width="95%" alt="WeatherReasonSeg teaser: adverse weather degrades VLM reasoning segmentation and the benchmark evaluates five reasoning dimensions">
+  <img src="assets/vector/main/teaser2.svg" width="95%" alt="WeatherReasonSeg teaser: adverse weather degrades VLM reasoning segmentation and the benchmark evaluates five reasoning dimensions">
 </p>
 
 > **Can vision-language models still reason and segment reliably when rain, snow, fog, or darkness obscures the visual evidence?**
@@ -58,7 +57,7 @@ Our experiments reveal that low-level visual corruption propagates into high-lev
 ## Dataset Construction
 
 <p align="center">
-  <img src="assets/overview.png" width="92%" alt="WeatherReasonSeg dataset construction pipeline">
+  <img src="assets/vector/main/pipeline2.svg" width="92%" alt="WeatherReasonSeg dataset construction pipeline">
 </p>
 
 WeatherReasonSeg contains two complementary components:
@@ -146,7 +145,7 @@ The paper evaluates grounding- and reasoning-based systems including Grounded-SA
 ### 1. Robustness decreases monotonically with weather severity
 
 <p align="center">
-  <img src="assets/severity.png" width="92%" alt="Qualitative comparison across light, moderate, and heavy adverse weather">
+  <img src="assets/vector/main/ex.svg" width="92%" alt="Qualitative comparison across light, moderate, and heavy adverse weather">
 </p>
 
 Across models and metrics, performance consistently declines from clean to light, moderate, and heavy degradation. For the reasoning-only Seg-Zero setting, gIoU drops from **65.3** on clean images to **47.7** under severe weather—an absolute decline of **17.6 points**.
@@ -158,7 +157,7 @@ On real-world scenes, SAM2 with ground-truth spatial prompts reaches **74.8–82
 ### 3. Not all reasoning dimensions are equally robust
 
 <p align="center">
-  <img src="assets/reasoning_dimensions.png" width="92%" alt="Performance across five reasoning dimensions and four adverse conditions">
+  <img src="assets/vector/main/radar.svg" width="92%" alt="Performance across five reasoning dimensions and four adverse conditions">
 </p>
 
 Queries grounded in visible **Structure** and **Function** cues are generally more stable. Context-dependent **Application** and **Requirement** queries degrade more strongly, showing that adverse weather disproportionately disrupts higher-level contextual reasoning.
@@ -185,14 +184,10 @@ If WeatherReasonSeg is useful in your research, please cite:
 }
 ```
 
-## Acknowledgements
-
-WeatherReasonSeg builds on prior resources including ReasonSeg and ACDC. We thank the authors and maintainers of the evaluated grounding, segmentation, and vision-language models for making their work available to the community.
 
 ---
 
 <div align="center">
 
-**WeatherReasonSeg — reasoning through the weather, down to the pixel.**
 
 </div>
