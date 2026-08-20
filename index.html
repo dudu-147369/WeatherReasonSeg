@@ -1,0 +1,701 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#0b1628">
+  <meta name="description" content="WeatherReasonSeg is the first benchmark for weather-aware reasoning segmentation in vision-language models, accepted to ECCV 2026.">
+  <meta property="og:title" content="WeatherReasonSeg — ECCV 2026">
+  <meta property="og:description" content="A benchmark for weather-aware reasoning segmentation in vision-language models.">
+  <meta property="og:image" content="assets/teaser.png">
+  <meta property="og:type" content="website">
+  <title>WeatherReasonSeg | ECCV 2026</title>
+
+  <style>
+    :root {
+      --ink: #0b1628;
+      --text: #27364c;
+      --muted: #65758c;
+      --paper: #f5f8fc;
+      --surface: rgba(255, 255, 255, 0.88);
+      --line: rgba(30, 55, 88, 0.11);
+      --sky: #1c85e8;
+      --sky-dark: #1167bd;
+      --cyan: #25b7c7;
+      --gold: #efaa35;
+      --shadow: 0 22px 60px rgba(16, 42, 76, 0.09);
+      --radius: 26px;
+      --content: 1160px;
+    }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; scroll-padding-top: 92px; }
+    body {
+      margin: 0;
+      min-width: 320px;
+      overflow-x: clip;
+      color: var(--text);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      line-height: 1.7;
+      background:
+        radial-gradient(circle at 7% 0%, rgba(28, 133, 232, 0.12), transparent 30rem),
+        radial-gradient(circle at 96% 7%, rgba(37, 183, 199, 0.10), transparent 28rem),
+        linear-gradient(180deg, #f7faff 0%, var(--paper) 55%, #f7f9fc 100%);
+    }
+
+    a { color: inherit; text-decoration: none; }
+    img { display: block; max-width: 100%; }
+    button { font: inherit; }
+
+    .shell {
+      width: min(calc(100% - 34px), var(--content));
+      margin-inline: auto;
+    }
+
+    .topbar {
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      border-bottom: 1px solid rgba(11, 22, 40, 0.06);
+      background: rgba(247, 250, 255, 0.78);
+      backdrop-filter: blur(18px) saturate(150%);
+    }
+
+    .topbar-inner {
+      min-height: 68px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 24px;
+    }
+
+    .brand {
+      display: inline-flex;
+      align-items: center;
+      gap: 11px;
+      color: var(--ink);
+      font-weight: 800;
+      letter-spacing: -0.025em;
+    }
+
+    .brand-mark {
+      position: relative;
+      width: 34px;
+      height: 34px;
+      border-radius: 12px;
+      overflow: hidden;
+      background: linear-gradient(145deg, var(--sky), var(--cyan));
+      box-shadow: 0 8px 18px rgba(28, 133, 232, 0.25);
+    }
+
+    .brand-mark::before,
+    .brand-mark::after {
+      content: "";
+      position: absolute;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.94);
+    }
+
+    .brand-mark::before { width: 17px; height: 7px; left: 8px; top: 10px; }
+    .brand-mark::after { width: 22px; height: 7px; left: 6px; top: 17px; opacity: 0.72; }
+
+    .nav {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 20px;
+      color: var(--muted);
+      font-size: 0.94rem;
+      font-weight: 600;
+    }
+
+    .nav a { transition: color 0.2s ease; }
+    .nav a:hover,
+    .nav a:focus-visible { color: var(--sky-dark); }
+
+    .hero { padding: 44px 0 14px; }
+    .hero-card,
+    .card,
+    .figure-card,
+    .metric,
+    .bibtex-card {
+      border: 1px solid rgba(255, 255, 255, 0.76);
+      background: var(--surface);
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(10px);
+    }
+
+    .hero-card {
+      position: relative;
+      overflow: hidden;
+      padding: clamp(30px, 5vw, 62px) clamp(22px, 5vw, 70px);
+      border-radius: 32px;
+      text-align: center;
+    }
+
+    .hero-card::before,
+    .hero-card::after {
+      content: "";
+      position: absolute;
+      pointer-events: none;
+      border-radius: 999px;
+      filter: blur(2px);
+    }
+
+    .hero-card::before {
+      width: 330px;
+      height: 330px;
+      right: -190px;
+      top: -220px;
+      background: rgba(37, 183, 199, 0.12);
+    }
+
+    .hero-card::after {
+      width: 280px;
+      height: 280px;
+      left: -170px;
+      bottom: -210px;
+      background: rgba(239, 170, 53, 0.10);
+    }
+
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 9px;
+      margin: 0;
+      padding: 8px 14px;
+      border: 1px solid rgba(28, 133, 232, 0.15);
+      border-radius: 999px;
+      color: var(--sky-dark);
+      background: rgba(28, 133, 232, 0.08);
+      font-size: 0.88rem;
+      font-weight: 750;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+
+    .eyebrow-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--sky), var(--cyan));
+      box-shadow: 0 0 0 5px rgba(28, 133, 232, 0.10);
+    }
+
+    h1 {
+      max-width: 1000px;
+      margin: 22px auto 0;
+      color: var(--ink);
+      font-size: clamp(2.3rem, 5.1vw, 4.45rem);
+      line-height: 1.02;
+      letter-spacing: -0.055em;
+      overflow-wrap: anywhere;
+    }
+
+    .title-accent {
+      color: transparent;
+      background: linear-gradient(100deg, var(--sky-dark), var(--cyan));
+      -webkit-background-clip: text;
+      background-clip: text;
+    }
+
+    .subtitle {
+      max-width: 760px;
+      margin: 20px auto 0;
+      color: var(--muted);
+      font-size: clamp(1.05rem, 2vw, 1.25rem);
+    }
+
+    .authors {
+      margin: 25px auto 0;
+      color: var(--ink);
+      font-size: 1.02rem;
+      font-weight: 650;
+    }
+
+    .author { display: inline-block; margin: 0 8px 5px; }
+    .author a:hover { color: var(--sky-dark); }
+    .affiliations,
+    .author-notes {
+      max-width: 900px;
+      margin: 11px auto 0;
+      color: var(--muted);
+      font-size: 0.93rem;
+    }
+    .author-notes { margin-top: 5px; font-size: 0.85rem; }
+
+    .hero-actions {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 11px;
+      margin-top: 28px;
+    }
+
+    .action {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 9px;
+      min-height: 48px;
+      padding: 0 18px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.88);
+      color: var(--ink);
+      font-weight: 700;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .action:hover,
+    .action:focus-visible {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 22px rgba(16, 42, 76, 0.12);
+    }
+
+    .action.arxiv { color: #fff; border-color: transparent; background: #a92525; }
+    .action.dataset { color: #744700; border-color: #f1d88a; background: #fff4c7; }
+    .action.code { color: #fff; border-color: #111827; background: #111827; }
+    .action.bib { color: #115f88; border-color: rgba(28, 133, 232, 0.18); background: #edf8ff; }
+    .icon { width: 20px; height: 20px; flex: none; }
+    .icon svg {
+      display: block;
+      width: 100%;
+      height: 100%;
+      fill: none;
+      stroke: currentColor;
+      stroke-width: 1.8;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+
+    main { padding-bottom: 50px; }
+    section { padding: 15px 0; }
+
+    .section-head { margin: 4px 0 15px; }
+    .section-head h2 {
+      margin: 0;
+      color: var(--ink);
+      font-size: clamp(1.65rem, 3vw, 2rem);
+      line-height: 1.2;
+      letter-spacing: -0.035em;
+    }
+    .section-head p { margin: 7px 0 0; color: var(--muted); }
+
+    .card { padding: clamp(24px, 4vw, 38px); border-radius: var(--radius); }
+    .card p { margin: 0; }
+    .card p + p { margin-top: 17px; }
+
+    .tldr {
+      position: relative;
+      overflow: hidden;
+      border-color: rgba(28, 133, 232, 0.14);
+      background: linear-gradient(135deg, rgba(28, 133, 232, 0.09), rgba(255, 255, 255, 0.94) 58%, rgba(37, 183, 199, 0.06));
+      font-size: 1.07rem;
+    }
+    .tldr strong { color: var(--sky-dark); }
+
+    .figure-card {
+      margin: 0;
+      overflow: hidden;
+      border-radius: var(--radius);
+      background: #fff;
+    }
+    .figure-card img { width: 100%; height: auto; }
+    .figure-card figcaption {
+      padding: 14px 19px 18px;
+      border-top: 1px solid var(--line);
+      color: var(--muted);
+      font-size: 0.91rem;
+    }
+
+    .teaser-card { padding: clamp(10px, 1.7vw, 18px); }
+    .teaser-card img { border-radius: 17px; }
+
+    .metrics {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 14px;
+      margin-bottom: 16px;
+    }
+    .metric {
+      padding: 22px 18px;
+      border-radius: 21px;
+      text-align: center;
+    }
+    .metric-value {
+      display: block;
+      color: var(--ink);
+      font-size: clamp(1.7rem, 3vw, 2.35rem);
+      font-weight: 820;
+      line-height: 1.1;
+      letter-spacing: -0.04em;
+    }
+    .metric-label { display: block; margin-top: 7px; color: var(--muted); font-size: 0.86rem; }
+
+    .benchmark-grid,
+    .result-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+
+    .mini-card {
+      padding: 24px;
+      border: 1px solid var(--line);
+      border-radius: 20px;
+      background: rgba(250, 252, 255, 0.76);
+    }
+    .mini-card h3 { margin: 0 0 8px; color: var(--ink); font-size: 1.08rem; }
+    .mini-card p { color: var(--muted); font-size: 0.95rem; }
+
+    .weather-chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 16px;
+    }
+    .chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      padding: 7px 11px;
+      border-radius: 999px;
+      color: #38506d;
+      background: #eef5fb;
+      font-size: 0.83rem;
+      font-weight: 700;
+    }
+    .chip i { width: 7px; height: 7px; border-radius: 50%; background: var(--sky); }
+    .chip:nth-child(2) i { background: var(--cyan); }
+    .chip:nth-child(3) i { background: #8fb4d9; }
+    .chip:nth-child(4) i { background: #24344d; }
+
+    .method-copy { margin-bottom: 23px !important; }
+    .result-grid .figure-card { height: 100%; }
+    .result-grid .figure-card img { width: 100%; }
+
+    .finding-list {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 13px;
+      margin-top: 16px;
+    }
+    .finding {
+      padding: 20px;
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      background: rgba(255, 255, 255, 0.72);
+    }
+    .finding-num {
+      display: inline-grid;
+      place-items: center;
+      width: 30px;
+      height: 30px;
+      margin-bottom: 11px;
+      border-radius: 10px;
+      color: #fff;
+      background: linear-gradient(135deg, var(--sky), var(--cyan));
+      font-size: 0.84rem;
+      font-weight: 800;
+    }
+    .finding h3 { margin: 0; color: var(--ink); font-size: 1rem; }
+    .finding p { margin-top: 7px; color: var(--muted); font-size: 0.9rem; }
+
+    .bibtex-card {
+      position: relative;
+      padding: 30px;
+      overflow: hidden;
+      border-radius: var(--radius);
+      border-color: rgba(255, 255, 255, 0.08);
+      background: linear-gradient(145deg, #0b1628, #162844);
+    }
+    .bibtex-card pre {
+      margin: 0;
+      padding-right: 86px;
+      overflow-x: auto;
+      color: #d8e7ff;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      font-size: 0.9rem;
+      line-height: 1.75;
+      white-space: pre-wrap;
+    }
+    .copy {
+      position: absolute;
+      top: 18px;
+      right: 18px;
+      padding: 9px 14px;
+      border: 0;
+      border-radius: 999px;
+      color: var(--ink);
+      background: #fff;
+      cursor: pointer;
+      font-weight: 700;
+      transition: transform 0.2s ease;
+    }
+    .copy:hover,
+    .copy:focus-visible { transform: translateY(-1px); }
+
+    footer {
+      padding: 10px 0 48px;
+      color: var(--muted);
+      text-align: center;
+      font-size: 0.9rem;
+    }
+    footer a { color: var(--sky-dark); }
+
+    @media (max-width: 900px) {
+      .metrics { grid-template-columns: repeat(2, 1fr); }
+      .finding-list { grid-template-columns: 1fr; }
+    }
+
+    @media (max-width: 720px) {
+      .topbar-inner { min-height: 62px; }
+      .nav { gap: 12px; font-size: 0.84rem; }
+      .nav a { display: none; }
+      .nav a:last-child { display: inline; }
+      .hero { padding-top: 25px; }
+      .benchmark-grid,
+      .result-grid { grid-template-columns: 1fr; }
+      .hero-card { border-radius: 24px; }
+    }
+
+    @media (max-width: 500px) {
+      .shell { width: min(calc(100% - 22px), var(--content)); }
+      h1 { font-size: 1.85rem; letter-spacing: -0.045em; }
+      .subtitle { font-size: 1rem; }
+      .author { margin-inline: 5px; }
+      .action { min-height: 45px; padding-inline: 15px; font-size: 0.92rem; }
+      .metrics { gap: 10px; }
+      .metric { padding: 18px 10px; }
+      .card { border-radius: 21px; }
+      .bibtex-card { padding: 24px 20px; }
+      .bibtex-card pre { padding: 42px 0 0; font-size: 0.78rem; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      html { scroll-behavior: auto; }
+      *, *::before, *::after { transition: none !important; }
+    }
+  </style>
+</head>
+
+<body>
+  <nav class="topbar" aria-label="Primary navigation">
+    <div class="shell topbar-inner">
+      <a class="brand" href="#top" aria-label="WeatherReasonSeg home">
+        <span class="brand-mark" aria-hidden="true"></span>
+        <span>WeatherReasonSeg</span>
+      </a>
+      <div class="nav">
+        <a href="#abstract">Abstract</a>
+        <a href="#benchmark">Benchmark</a>
+        <a href="#method">Method</a>
+        <a href="#results">Results</a>
+        <a href="#bibtex">BibTeX</a>
+      </div>
+    </div>
+  </nav>
+
+  <header class="hero" id="top">
+    <div class="shell">
+      <div class="hero-card">
+        <p class="eyebrow"><span class="eyebrow-dot" aria-hidden="true"></span>ECCV 2026</p>
+        <h1><span class="title-accent">WeatherReasonSeg</span></h1>
+        <p class="subtitle">A Benchmark for Weather-Aware Reasoning Segmentation in Visual Language Models</p>
+
+        <div class="authors">
+          <span class="author"><a href="mailto:25110603@bjtu.edu.cn">Wanjun Du</a><sup>1,*</sup></span>
+          <span class="author">Zifeng Yuan<sup>2,*</sup></span>
+          <span class="author">Tingting Chen<sup>2</sup></span>
+          <span class="author">Fucai Ke<sup>3</sup></span>
+          <span class="author">Beibei Lin<sup>2,†</sup></span>
+          <span class="author"><a href="mailto:slzhang@bjtu.edu.cn">Shunli Zhang</a><sup>1,‡</sup></span>
+        </div>
+        <div class="affiliations">
+          <sup>1</sup>Beijing Jiaotong University &nbsp;·&nbsp;
+          <sup>2</sup>National University of Singapore &nbsp;·&nbsp;
+          <sup>3</sup>Monash University
+        </div>
+        <div class="author-notes"><sup>*</sup>Equal contribution &nbsp;·&nbsp; <sup>†</sup>Project leader &nbsp;·&nbsp; <sup>‡</sup>Corresponding author</div>
+
+        <div class="hero-actions" aria-label="Project links">
+          <a class="action arxiv" href="https://arxiv.org/abs/2603.17680" target="_blank" rel="noopener">
+            <span class="icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"></path><path d="M14 3v5h5"></path><path d="M9 13h6M9 17h6"></path></svg></span>
+            arXiv
+          </a>
+          <a class="action dataset" href="https://huggingface.co/datasets/wanwan1111/WeatherReasonSeg" target="_blank" rel="noopener">
+            <span class="icon" aria-hidden="true"><svg viewBox="0 0 24 24"><ellipse cx="12" cy="5" rx="8" ry="3"></ellipse><path d="M4 5v6c0 1.7 3.6 3 8 3s8-1.3 8-3V5"></path><path d="M4 11v6c0 1.7 3.6 3 8 3s8-1.3 8-3v-6"></path></svg></span>
+            Dataset
+          </a>
+          <!-- Replace this URL only if the final public code repository uses a different owner or name. -->
+          <a class="action code" href="https://github.com/wanwan1111/WeatherReasonSeg" target="_blank" rel="noopener">
+            <span class="icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="m8 9-4 3 4 3M16 9l4 3-4 3M14 5l-4 14"></path></svg></span>
+            Code
+          </a>
+          <a class="action bib" href="#bibtex">
+            <span class="icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M8 7h8M8 12h8M8 17h5"></path><path d="M5 4h14a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2Z"></path></svg></span>
+            BibTeX
+          </a>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <section aria-label="Project teaser">
+      <div class="shell">
+        <figure class="figure-card teaser-card">
+          <img src="assets/vector/main/teaser2.svg" alt="WeatherReasonSeg motivation and five reasoning dimensions" fetchpriority="high">
+        </figure>
+      </div>
+    </section>
+
+    <section id="tldr">
+      <div class="shell">
+        <div class="section-head"><h2>Overview</h2></div>
+        <div class="card tldr">
+          <p><strong>WeatherReasonSeg</strong> is the first benchmark dedicated to reasoning segmentation under adverse weather. It combines controllable physics-guided weather synthesis with real-world degraded scenes and pixel-level masks, revealing how rain, snow, fog, and darkness disrupt not only visual perception but also high-level semantic reasoning and spatial grounding.</p>
+        </div>
+      </div>
+    </section>
+
+    <section id="abstract">
+      <div class="shell">
+        <div class="section-head"><h2>Abstract</h2></div>
+        <div class="card">
+          <p>Reasoning segmentation requires vision-language models to interpret a natural-language query, identify the intended object through semantic reasoning, and produce a pixel-accurate mask. Existing benchmarks largely assume clean visual conditions, leaving model reliability under adverse weather insufficiently understood.</p>
+          <p>WeatherReasonSeg addresses this gap with complementary synthetic and real-world benchmarks. The synthetic track applies physically interpretable fog, rain, and snow at controlled severity levels while preserving the original reasoning queries and masks. The real-world track pairs naturally degraded scenes with masks and structured queries spanning <strong>Function</strong>, <strong>Application</strong>, <strong>Structure</strong>, <strong>Relationship</strong>, and <strong>Requirement</strong>. Extensive evaluation shows that visual degradation propagates into semantic association and spatial grounding, with higher-level contextual reasoning particularly vulnerable.</p>
+        </div>
+      </div>
+    </section>
+
+    <section id="benchmark">
+      <div class="shell">
+        <div class="section-head">
+          <h2>Benchmark at a Glance</h2>
+          <p>A graded stress test for weather-aware visual-language reasoning.</p>
+        </div>
+
+        <div class="metrics" aria-label="Dataset statistics">
+          <div class="metric"><span class="metric-value">44,721</span><span class="metric-label">image-query pairs</span></div>
+          <div class="metric"><span class="metric-value">4</span><span class="metric-label">adverse conditions</span></div>
+          <div class="metric"><span class="metric-value">5</span><span class="metric-label">reasoning dimensions</span></div>
+          <div class="metric"><span class="metric-value">3</span><span class="metric-label">synthetic severity levels</span></div>
+        </div>
+
+        <div class="card">
+          <div class="benchmark-grid">
+            <article class="mini-card">
+              <h3>Controllable synthetic benchmark</h3>
+              <p>8,811 image-query pairs generated with physics-guided fog, rain, and snow models at light, moderate, and heavy severity.</p>
+              <div class="weather-chips"><span class="chip"><i></i>Fog</span><span class="chip"><i></i>Rain</span><span class="chip"><i></i>Snow</span></div>
+            </article>
+            <article class="mini-card">
+              <h3>Real-world benchmark</h3>
+              <p>35,910 image-query pairs from naturally degraded scenes, with masks, boxes, and mask-guided queries designed around five reasoning dimensions.</p>
+              <div class="weather-chips"><span class="chip"><i></i>Fog</span><span class="chip"><i></i>Rain</span><span class="chip"><i></i>Snow</span><span class="chip"><i></i>Night</span></div>
+            </article>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="method">
+      <div class="shell">
+        <div class="section-head">
+          <h2>Dataset Construction</h2>
+          <p>Controlled degradation and real-world query construction form two complementary evaluation tracks.</p>
+        </div>
+        <div class="card">
+          <p class="method-copy">Clean images, depth maps, and expert-calibrated weather generators create synthetic examples with interpretable severity control. For real-world data, mask-guided vision-language generation proposes object-consistent queries, followed by human-model collaborative filtering for semantic alignment, answerability, and reasoning validity.</p>
+          <figure class="figure-card">
+            <img src="assets/vector/main/pipeline2.svg" loading="lazy" alt="WeatherReasonSeg synthetic and real-world benchmark construction pipeline">
+            <figcaption>Overview of the WeatherReasonSeg construction pipeline.</figcaption>
+          </figure>
+        </div>
+      </div>
+    </section>
+
+    <section id="results">
+      <div class="shell">
+        <div class="section-head">
+          <h2>Key Findings</h2>
+          <p>Adverse weather exposes coupled failures in perception, reasoning, and grounding.</p>
+        </div>
+
+        <div class="result-grid">
+          <figure class="figure-card">
+            <img src="assets/vector/main/ex.svg" loading="lazy" alt="Qualitative comparison across light, moderate, and heavy weather degradation">
+            <figcaption>Reasoning-segmentation quality degrades monotonically as weather severity increases.</figcaption>
+          </figure>
+          <figure class="figure-card">
+            <img src="assets/vector/main/radar.svg" loading="lazy" alt="Performance across five reasoning dimensions in fog, rain, snow, and night">
+            <figcaption>Performance across five reasoning dimensions and four adverse conditions.</figcaption>
+          </figure>
+        </div>
+
+        <div class="finding-list">
+          <article class="finding">
+            <span class="finding-num">01</span>
+            <h3>Severity drives consistent decline</h3>
+            <p>Across models and metrics, performance drops from clean to light, moderate, and heavy degradation.</p>
+          </article>
+          <article class="finding">
+            <span class="finding-num">02</span>
+            <h3>Reasoning remains the bottleneck</h3>
+            <p>A large gap persists between segmentation with known spatial prompts and language-guided reasoning.</p>
+          </article>
+          <article class="finding">
+            <span class="finding-num">03</span>
+            <h3>Contextual queries are less robust</h3>
+            <p>Application and Requirement queries degrade more strongly than visible Structure and Function cues.</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section id="bibtex">
+      <div class="shell">
+        <div class="section-head">
+          <h2>BibTeX</h2>
+          <p>If you find WeatherReasonSeg useful, please cite our paper.</p>
+        </div>
+        <div class="bibtex-card">
+          <button class="copy" id="copy-bibtex" type="button" aria-label="Copy BibTeX citation">Copy</button>
+<pre id="bibtex-content">@inproceedings{du2026weatherreasonseg,
+  title     = {WeatherReasonSeg: A Benchmark for Weather-Aware Reasoning Segmentation in Visual Language Models},
+  author    = {Du, Wanjun and Yuan, Zifeng and Chen, Tingting and Ke, Fucai and Lin, Beibei and Zhang, Shunli},
+  booktitle = {European Conference on Computer Vision (ECCV)},
+  year      = {2026}
+}</pre>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="shell">
+    <p>WeatherReasonSeg · ECCV 2026 &nbsp;·&nbsp; <a href="https://arxiv.org/abs/2603.17680" target="_blank" rel="noopener">Paper</a> &nbsp;·&nbsp; <a href="https://huggingface.co/datasets/wanwan1111/WeatherReasonSeg" target="_blank" rel="noopener">Dataset</a></p>
+  </footer>
+
+  <script>
+    const copyButton = document.getElementById("copy-bibtex");
+    const bibtexText = document.getElementById("bibtex-content").textContent;
+
+    copyButton.addEventListener("click", async () => {
+      try {
+        await navigator.clipboard.writeText(bibtexText);
+        copyButton.textContent = "Copied";
+      } catch (error) {
+        const range = document.createRange();
+        range.selectNodeContents(document.getElementById("bibtex-content"));
+        window.getSelection().removeAllRanges();
+        window.getSelection().addRange(range);
+        copyButton.textContent = "Selected";
+      }
+      window.setTimeout(() => { copyButton.textContent = "Copy"; }, 1500);
+    });
+  </script>
+</body>
+</html>
